@@ -4,9 +4,10 @@ export interface TableData {
 }
 
 export interface ChartConfig {
-  chart_type: "bar" | "line" | "pie" | "scatter";
+  chart_type: "bar" | "grouped_bar" | "line" | "pie" | "scatter";
   x_column: string;
   y_column: string;
+  group_by?: string;
 }
 
 export interface QueryResponse {
