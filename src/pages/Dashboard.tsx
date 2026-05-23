@@ -191,7 +191,7 @@ export default function Dashboard() {
                     <InsightCard insights={result.insights} />
                     <DataTable table={result.table} />
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <QueryHistory history={history} />
                   </Grid>
                 </Grid>

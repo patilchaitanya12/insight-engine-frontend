@@ -19,7 +19,7 @@ export default function MetricCards({ rows, xColumn, yColumn }: any) {
   return (
     <Grid container spacing={3} sx={{ mb: 4 }}>
       {stats.map((item, i) => (
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid key={i} size={{ xs: 12, md: 4 }}>
           <Paper sx={{
             p: 3, 
             borderRadius: 6, 
