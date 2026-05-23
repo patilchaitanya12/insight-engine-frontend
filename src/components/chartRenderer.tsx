@@ -40,34 +40,29 @@ export default function ChartRenderer({ table, chart }: Props) {
   };
 
   const commonProps = {
-    height: 400,
-    margin: { top: 50, bottom: 50, left: 60, right: 20 },
-    colors: CHART_COLORS,
-    slotProps: {
-      legend: {
-        labelStyle: { 
-          fill: theme.palette.text.secondary, // Dynamic legend color
-          fontSize: 12 
+      height: 400,
+      margin: { top: 50, bottom: 50, left: 60, right: 20 },
+      colors: CHART_COLORS,
+      sx: {
+        "& .MuiChartsLegend-label": {
+          fill: `${theme.palette.text.secondary} !important`,
+          fontSize: "12px !important",
         },
-      },
-    },
-    // This adds dynamic coloring to the axes (lines and labels)
-    sx: {
-      "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
-        fill: theme.palette.text.secondary,
-      },
-      "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
-        fill: theme.palette.text.secondary,
-      },
-      "& .MuiChartsAxis-line": {
-        stroke: theme.palette.divider,
-      },
-      "& .MuiChartsAxis-tick": {
-        stroke: theme.palette.divider,
-      },
-    }
-  };
-
+        "& .MuiChartsAxis-left .MuiChartsAxis-tickLabel": {
+          fill: theme.palette.text.secondary,
+        },
+        "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
+          fill: theme.palette.text.secondary,
+        },
+        "& .MuiChartsAxis-line": {
+          stroke: theme.palette.divider,
+        },
+        "& .MuiChartsAxis-tick": {
+          stroke: theme.palette.divider,
+        },
+      }
+    };
+  
   // Grouped Bar Logic
   if (group_by && (chart_type === "bar" || chart_type === "grouped_bar")) {
     const groups = [...new Set(rows.map((r) => r[group_by]))];

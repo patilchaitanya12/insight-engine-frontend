@@ -181,7 +181,7 @@ export default function Dashboard() {
 
               {result && (
                 <Grid container spacing={4}>
-                  <Grid item xs={12} md={9}>
+                  <Grid size={{ xs: 12, md: 9 }}>
                     <MetricCards 
                       rows={result.table.data} 
                       xColumn={result.chart.x_column} 
