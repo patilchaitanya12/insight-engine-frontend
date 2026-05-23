@@ -1,82 +1,86 @@
-import { Box, Button, TextField, Paper, InputAdornment, useTheme } from "@mui/material";
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { useState } from "react";
+import { Sparkles, Loader2, ArrowRight } from "lucide-react";
 import api from "../services/api";
 
-export default function QueryPanel({ datasetId, query, setQuery, onResult }: any) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+interface Props {
+  datasetId: string;
+  query: string;
+  setQuery: (q: string) => void;
+  onResult: (res: any, q: string) => void;
+}
+
+export default function QueryPanel({ datasetId, query, setQuery, onResult }: Props) {
+  const [loading, setLoading] = useState(false);
 
   const handleQuery = async () => {
-    if (!query || !datasetId) return;
+    if (!query.trim() || !datasetId || loading) return;
+    setLoading(true);
     try {
-      const response = await api.post("/query/", {
-        dataset_id: datasetId,
-        question: query
-      });
+      const response = await api.post("/query/", { dataset_id: datasetId, question: query });
       onResult(response.data, query);
     } catch (error) {
-      console.error("Query execution failed", error);
+      console.error("Query failed", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Paper elevation={0} sx={{
-      p: 1, 
-      borderRadius: 4,
-      bgcolor: "background.paper",
-      border: "1px solid",
-      borderColor: "divider",
-      boxShadow: isDark 
-        ? "0 4px 20px rgba(0, 0, 0, 0.4)" 
-        : "0 2px 12px rgba(0, 0, 0, 0.05)",
-    }}>
-      <Box display="flex" gap={1}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Ask a question about your data..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleQuery()}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AutoAwesomeIcon sx={{ color: "primary.main" }} />
-              </InputAdornment>
-            ),
-            sx: {
-              color: "text.primary",
-              borderRadius: 3,
-              "& fieldset": { border: "none" },
-              "& input::placeholder": { 
-                color: "text.secondary", 
-                opacity: 0.7 
-              }
-            }
-          }}
-        />
-        <Button
-          onClick={handleQuery}
-          variant="contained"
-          sx={{
-            borderRadius: 3, 
-            px: 4,
-            background: isDark
-              ? "linear-gradient(45deg, #3b82f6, #8b5cf6)"
-              : "linear-gradient(45deg, #2563eb, #7c3aed)",
-            textTransform: "none",
-            fontWeight: 600,
-            boxShadow: isDark ? "0 4px 15px rgba(59, 130, 246, 0.4)" : "none",
-            "&:hover": { 
-              background: isDark
-                ? "linear-gradient(45deg, #60a5fa, #a78bfa)"
-                : "linear-gradient(45deg, #1d4ed8, #6d28d9)",
-            }
-          }}
-        >
-          Run
-        </Button>
-      </Box>
-    </Paper>
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12,
+      background: "var(--bg-surface)",
+      border: "1px solid var(--border-subtle)",
+      borderRadius: 12, padding: "10px 16px",
+      transition: "border-color 0.15s",
+    }}
+    onFocusCapture={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+    onBlurCapture={e => (e.currentTarget.style.borderColor = "var(--border-subtle)")}
+    >
+      <Sparkles size={15} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleQuery()}
+        placeholder="Ask a question about your data..."
+        style={{
+          flex: 1, background: "transparent",
+          border: "none", outline: "none",
+          fontSize: 14, color: "var(--text-primary)",
+          fontFamily: "inherit",
+        }}
+      />
+
+      <button
+        onClick={handleQuery}
+        disabled={!query.trim() || loading}
+        style={{
+          display: "flex", alignItems: "center", gap: 6,
+          fontSize: 12, fontWeight: 600,
+          color: !query.trim() || loading ? "var(--text-muted)" : "white",
+          background: !query.trim() || loading ? "var(--bg-elevated)" : "var(--accent)",
+          border: "1px solid",
+          borderColor: !query.trim() || loading ? "var(--border-subtle)" : "transparent",
+          borderRadius: 8, padding: "7px 14px",
+          cursor: !query.trim() || loading ? "not-allowed" : "pointer",
+          flexShrink: 0, transition: "background 0.15s",
+        }}
+        onMouseEnter={e => {
+          if (query.trim() && !loading)
+            (e.currentTarget as HTMLElement).style.background = "#0f766e";
+        }}
+        onMouseLeave={e => {
+          if (query.trim() && !loading)
+            (e.currentTarget as HTMLElement).style.background = "var(--accent)";
+        }}
+      >
+        {loading
+          ? <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+          : <><span>Run</span><ArrowRight size={12} /></>
+        }
+      </button>
+      <style>{`@keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }`}</style>
+    </div>
   );
 }

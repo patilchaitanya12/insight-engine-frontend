@@ -1,14 +1,4 @@
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { useState } from "react";
 import type { TableData } from "../types/query";
 
 interface Props {
@@ -16,77 +6,80 @@ interface Props {
 }
 
 export default function DataTable({ table }: Props) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: 6,
-        bgcolor: "background.paper",
-        border: "1px solid",
-        borderColor: "divider",
-        boxShadow: isDark 
-          ? "0 4px 20px rgba(0, 0, 0, 0.4)" 
-          : "0 2px 12px rgba(0, 0, 0, 0.05)",
-        overflow: "hidden"
-      }}
-    >
-      <Typography variant="h6" sx={{ color: "text.primary", mb: 2, fontWeight: 700 }}>
-        Raw Data Explorer
-      </Typography>
+    <div style={{
+      background: "var(--bg-surface)",
+      border: "1px solid var(--border-subtle)",
+      borderRadius: 12,
+      overflow: "hidden",
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: "14px 20px 12px",
+        borderBottom: "1px solid var(--border-subtle)",
+      }}>
+        <p style={{
+          fontSize: 12, fontWeight: 600,
+          letterSpacing: "-0.01em",
+          color: "var(--text-secondary)", margin: 0,
+        }}>
+          Raw data explorer
+        </p>
+      </div>
 
-      <TableContainer sx={{ maxHeight: 440, borderRadius: 3 }}>
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
+      {/* Table */}
+      <div style={{ overflowX: "auto", maxHeight: 400, overflowY: "auto" }}>
+        <table style={{
+          width: "100%", borderCollapse: "collapse",
+          fontSize: 13,
+        }}>
+          <thead>
+            <tr>
               {table.columns.map((col) => (
-                <TableCell 
-                  key={col} 
-                  sx={{ 
-                    fontWeight: 700,
-                    // Use a slightly different shade for the sticky header
-                    bgcolor: isDark ? "#1e293b" : "#f1f5f9", 
-                    color: "text.secondary",
-                    borderBottom: "2px solid",
-                    borderColor: "divider",
-                    textTransform: "uppercase",
-                    fontSize: "0.75rem",
-                    letterSpacing: 1.2
-                  }}
-                >
+                <th key={col} style={{
+                  padding: "10px 20px",
+                  textAlign: "left",
+                  fontSize: 11, fontWeight: 600,
+                  letterSpacing: "0.07em", textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                  background: "var(--bg-elevated)",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  position: "sticky", top: 0,
+                  whiteSpace: "nowrap",
+                }}>
                   {col}
-                </TableCell>
+                </th>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {table.data.map((row, index) => (
-              <TableRow 
-                key={index}
-                sx={{ 
-                  transition: "background-color 0.2s",
-                  "&:hover": { 
-                    bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" 
-                  },
-                  "& td": { 
-                    borderBottom: "1px solid",
-                    borderColor: "divider" 
-                  }
+            </tr>
+          </thead>
+          <tbody>
+            {table.data.map((row, i) => (
+              <tr
+                key={i}
+                onMouseEnter={() => setHoveredRow(i)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  background: hoveredRow === i ? "var(--bg-elevated)" : "transparent",
+                  transition: "background 0.1s",
                 }}
               >
                 {table.columns.map((col) => (
-                  <TableCell key={col} sx={{ color: "text.primary" }}>
+                  <td key={col} style={{
+                    padding: "10px 20px",
+                    color: "var(--text-secondary)",
+                    borderBottom: i < table.data.length - 1 ? "1px solid var(--border-subtle)" : "none",
+                    whiteSpace: "nowrap",
+                  }}>
                     {row[col]}
-                  </TableCell>
+                  </td>
                 ))}
-              </TableRow>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
