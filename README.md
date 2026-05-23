@@ -7,7 +7,7 @@ The frontend communicates with the backend analytics engine to render tables, ch
 ---
 
 ## Live App
-🌐 https://insight-engine-frontend.vercel.app
+🌐 https://insight-engine-frontend-beige.vercel.app/
 
 ---
 
