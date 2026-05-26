@@ -7,4 +7,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react:    ['react', 'react-dom'],
+          recharts: ['recharts'],
+          lucide:   ['lucide-react'],
+          mui:      ['@mui/material', '@mui/x-charts'],
+        },
+      },
+    },
+  },
 })
