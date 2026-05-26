@@ -4,7 +4,7 @@ export interface TableData {
 }
 
 export interface ChartConfig {
-  chart_type: "bar" | "grouped_bar" | "line" | "pie" | "scatter";
+  chart_type: "bar" | "grouped_bar" | "line" | "pie" | "scatter" | "area" | "stacked_bar" | "multi_line";
   x_column: string;
   y_column: string;
   group_by?: string;
