@@ -32,8 +32,8 @@ export default function UploadPanel({ onUploadSuccess }: Props) {
     try {
       const response = await api.post("/upload/", formData);
       onUploadSuccess(response.data.dataset_id, response.data.suggested_questions || []);
-    } catch {
-      setError("Upload failed. Please check your file and try again.");
+    } catch (err: any) {
+      setError(`Error: ${err?.response?.status} - ${err?.response?.data?.detail || err?.message || "Unknown error"}`);
     } finally {
       setLoading(false);
     }
