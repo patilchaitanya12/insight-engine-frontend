@@ -67,81 +67,73 @@ export default function Dashboard() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "12px 28px",
+        padding: "10px 16px",
         background: isDark ? "rgba(13,17,23,0.92)" : "rgba(240,244,248,0.92)",
         borderBottom: "1px solid var(--border-subtle)",
         backdropFilter: "blur(12px)",
+        gap: 8,
       }}>
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
           <div style={{
-            width: 32, height: 32, borderRadius: 8,
+            width: 30, height: 30, borderRadius: 8, flexShrink: 0,
             background: "var(--accent)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <BarChart2 size={16} color="white" />
+            <BarChart2 size={15} color="white" />
           </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2, whiteSpace: "nowrap" }}>
               Insight Engine
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1 }}>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1, whiteSpace: "nowrap" }}>
               AI-powered analytics
             </div>
           </div>
         </div>
 
         {/* Right */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           {datasetId && (
             <button
               onClick={handleReset}
               style={{
-                display: "flex", alignItems: "center", gap: 6,
-                fontSize: 12, fontWeight: 500,
+                display: "flex", alignItems: "center", gap: 5,
+                fontSize: 11, fontWeight: 500,
                 color: "var(--text-secondary)",
                 background: "transparent",
                 border: "1px solid var(--border-subtle)",
-                borderRadius: 8, padding: "6px 12px",
-                cursor: "pointer",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--border-muted)";
-                (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
-                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                borderRadius: 8, padding: "5px 10px",
+                cursor: "pointer", whiteSpace: "nowrap",
               }}
             >
-              <RotateCcw size={12} />
+              <RotateCcw size={11} />
               New dataset
             </button>
           )}
 
-          {/* Theme toggle pill — Review Intelligence style */}
           <button
             onClick={toggle}
             style={{
-              display: "flex", alignItems: "center", gap: 8,
-              fontSize: 12, fontWeight: 600,
+              display: "flex", alignItems: "center", gap: 6,
+              fontSize: 11, fontWeight: 600,
               color: "var(--text-secondary)",
               background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
-              borderRadius: 20, padding: "6px 14px",
-              cursor: "pointer",
+              borderRadius: 20, padding: "5px 12px",
+              cursor: "pointer", whiteSpace: "nowrap",
             }}
           >
             {isDark ? "Light" : "Dark"}
             <div style={{
-              width: 28, height: 16, borderRadius: 8,
+              width: 26, height: 15, borderRadius: 8,
               background: isDark ? "var(--accent)" : "var(--border-muted)",
-              position: "relative", transition: "background 0.2s",
+              position: "relative", transition: "background 0.2s", flexShrink: 0,
             }}>
               <div style={{
                 position: "absolute",
-                top: 2, left: isDark ? 14 : 2,
-                width: 12, height: 12,
+                top: 2, left: isDark ? 13 : 2,
+                width: 11, height: 11,
                 borderRadius: "50%",
                 background: "white",
                 transition: "left 0.2s",
@@ -158,7 +150,7 @@ export default function Dashboard() {
           <div style={{
             flex: 1, display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
-            padding: "80px 24px", gap: 48,
+            padding: "48px 16px", gap: 36,
           }}>
             {/* Badge */}
             <div style={{
@@ -174,20 +166,20 @@ export default function Dashboard() {
             </div>
 
             {/* Hero */}
-            <div style={{ textAlign: "center", maxWidth: 560 }}>
+            <div style={{ textAlign: "center", maxWidth: 560, padding: "0 4px" }}>
               <h1 style={{
-                fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                fontSize: "clamp(1.75rem, 7vw, 3.25rem)",
                 fontWeight: 800,
                 lineHeight: 1.1,
                 letterSpacing: "-0.03em",
                 color: "var(--text-primary)",
-                marginBottom: 16,
+                marginBottom: 14,
               }}>
                 What do you want to{" "}
                 <span style={{ color: "var(--accent-light)" }}>know?</span>
               </h1>
               <p style={{
-                fontSize: 16, lineHeight: 1.7,
+                fontSize: "clamp(14px, 4vw, 16px)", lineHeight: 1.7,
                 color: "var(--text-secondary)",
                 fontWeight: 400,
               }}>
@@ -196,11 +188,13 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Upload */}
-            <UploadPanel onUploadSuccess={handleUploadSuccess} />
+            {/* Upload — full width on mobile */}
+            <div style={{ width: "100%", maxWidth: 480 }}>
+              <UploadPanel onUploadSuccess={handleUploadSuccess} />
+            </div>
 
             {/* Hint pills */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 500 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 500, padding: "0 8px" }}>
               {HINTS.map((hint) => (
                 <span key={hint} style={{
                   fontSize: 12, fontWeight: 400,
@@ -217,8 +211,8 @@ export default function Dashboard() {
 
         ) : (
           /* ── Dashboard ── */
-          <div style={{ maxWidth: 1280, width: "100%", margin: "0 auto", padding: "40px 24px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "20px 14px 40px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
               {/* Query bar */}
               <QueryPanel
@@ -228,7 +222,7 @@ export default function Dashboard() {
                 setQuery={setQuery}
               />
 
-              {/* Suggestions */}
+              {/* Suggestions — horizontal scroll on mobile */}
               {suggestions.length > 0 && (
                 <div>
                   <p style={{
@@ -238,7 +232,13 @@ export default function Dashboard() {
                   }}>
                     Suggested questions
                   </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{
+                    display: "flex", gap: 8,
+                    overflowX: "auto", paddingBottom: 4,
+                    /* hide scrollbar but allow scroll */
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}>
                     {suggestions.map((q, i) => (
                       <button
                         key={i}
@@ -251,14 +251,7 @@ export default function Dashboard() {
                           border: "1px solid var(--border-subtle)",
                           borderRadius: 20, padding: "5px 14px",
                           cursor: "pointer",
-                        }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
-                          (e.currentTarget as HTMLElement).style.color = "var(--accent-light)";
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
-                          (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                          whiteSpace: "nowrap", flexShrink: 0,
                         }}
                       >
                         <Lightbulb size={11} />
@@ -271,30 +264,34 @@ export default function Dashboard() {
 
               {/* Results */}
               {result && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 24 }}>
-                  {/* Main */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <MetricCards
-                      rows={result.table.data}
-                      xColumn={result.chart.x_column}
-                      yColumn={result.chart.y_column}
-                    />
-                    <div style={{
-                      background: "var(--bg-surface)",
-                      border: "1px solid var(--border-subtle)",
-                      borderRadius: 12, overflow: "hidden",
-                    }}>
-                      <ChartRenderer table={result.table} chart={result.chart} />
-                    </div>
-                    <InsightCard insights={result.insights} />
-                    <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 20 }}>
-                      <DataTable table={result.table} />
-                    </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {/* Metric cards */}
+                  <MetricCards
+                    rows={result.table.data}
+                    xColumn={result.chart.x_column}
+                    yColumn={result.chart.y_column}
+                  />
+
+                  {/* Chart */}
+                  <div style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: 12, overflow: "hidden",
+                  }}>
+                    <ChartRenderer table={result.table} chart={result.chart} />
                   </div>
 
-                  {/* Sidebar */}
-                  <div style={{ position: "sticky", top: 76, alignSelf: "start" }}>
+                  {/* Insight */}
+                  <InsightCard insights={result.insights} />
+
+                  {/* Query history — inline on mobile instead of sticky sidebar */}
+                  {history.length > 0 && (
                     <QueryHistory history={history} />
+                  )}
+
+                  {/* Data table */}
+                  <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 16 }}>
+                    <DataTable table={result.table} />
                   </div>
                 </div>
               )}
@@ -304,7 +301,7 @@ export default function Dashboard() {
                 <div style={{
                   display: "flex", flexDirection: "column",
                   alignItems: "center", justifyContent: "center",
-                  padding: "80px 0", gap: 12,
+                  padding: "60px 0", gap: 12,
                 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 12,
@@ -314,7 +311,7 @@ export default function Dashboard() {
                   }}>
                     <Sparkles size={18} color="var(--text-muted)" />
                   </div>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "0 20px" }}>
                     Ask a question about your data to get started
                   </p>
                 </div>
@@ -324,6 +321,11 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {/* Hide scrollbar for suggestion pills */}
+      <style>{`
+        div::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }
