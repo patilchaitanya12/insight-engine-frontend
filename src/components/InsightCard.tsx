@@ -6,38 +6,55 @@ interface InsightProps {
 
 export function InsightCard({ insights }: InsightProps) {
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      border: "1px solid var(--border-subtle)",
-      borderRadius: 12, padding: "20px 20px 20px 20px",
-      borderLeft: "3px solid var(--accent)",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        <div style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: "var(--accent-bg)",
-          border: "1px solid var(--accent-border)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-        }}>
-          <Lightbulb size={13} color="var(--accent-light)" />
+    <>
+      <style>{`
+        .insight-card {
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-left: 3px solid var(--accent);
+          border-radius: 12px;
+          padding: 16px;
+        }
+        .insight-text {
+          font-size: 13px;
+          line-height: 1.75;
+          color: var(--text-secondary);
+          white-space: pre-line;
+          margin: 0;
+        }
+        @media (max-width: 480px) {
+          .insight-card {
+            padding: 14px 12px;
+          }
+          .insight-text {
+            font-size: 12px;
+            line-height: 1.7;
+          }
+        }
+      `}</style>
+
+      <div className="insight-card">
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <div style={{
+            width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+            background: "var(--accent-bg)",
+            border: "1px solid var(--accent-border)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Lightbulb size={12} color="var(--accent-light)" />
+          </div>
+          <span style={{
+            fontSize: 10, fontWeight: 600,
+            letterSpacing: "0.08em", textTransform: "uppercase",
+            color: "var(--accent-light)",
+          }}>
+            AI Insights
+          </span>
         </div>
-        <span style={{
-          fontSize: 11, fontWeight: 600,
-          letterSpacing: "0.08em", textTransform: "uppercase",
-          color: "var(--accent-light)",
-        }}>
-          AI Insights
-        </span>
+
+        <p className="insight-text">{insights}</p>
       </div>
-      <p style={{
-        fontSize: 14, lineHeight: 1.75,
-        color: "var(--text-secondary)",
-        whiteSpace: "pre-line",
-      }}>
-        {insights}
-      </p>
-    </div>
+    </>
   );
 }
 
