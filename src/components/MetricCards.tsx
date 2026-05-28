@@ -6,6 +6,16 @@ interface Props {
 
 const ACCENT_COLORS = ["#3b82f6", "#a855f7", "#10b981"];
 
+// Clean up values for display:
+// - ISO timestamps → date only (2025-10-11T00:00:00 → 2025-10-11)
+// - Long strings   → truncate with ellipsis
+const formatDisplayValue = (val: string): string => {
+  if (!val) return val;
+  if (/^\d{4}-\d{2}-\d{2}T/.test(val)) return val.split("T")[0];
+  if (val.length > 18) return val.slice(0, 16) + "\u2026";
+  return val;
+};
+
 export default function MetricCards({ rows, xColumn, yColumn }: Props) {
   if (!rows.length) return null;
 
@@ -15,7 +25,7 @@ export default function MetricCards({ rows, xColumn, yColumn }: Props) {
 
   const stats = [
     { label: `Total ${yColumn}`,  value: total.toLocaleString(),    color: ACCENT_COLORS[0] },
-    { label: `Top ${xColumn}`,    value: String(maxRow[xColumn]),   color: ACCENT_COLORS[1] },
+    { label: `Top ${xColumn}`,    value: formatDisplayValue(String(maxRow[xColumn])),   color: ACCENT_COLORS[1] },
     { label: `Avg ${yColumn}`,    value: avg.toLocaleString(),      color: ACCENT_COLORS[2] },
   ];
 
