@@ -9,6 +9,7 @@ import DataTable from "../components/DataTable";
 import InsightCard from "../components/InsightCard";
 import MetricCards from "../components/MetricCards";
 import QueryHistory from "../components/QueryHistory";
+import SampleDatasets from "../components/SampleDatasets";
 
 import type { QueryResponse } from "../types/query";
 
@@ -207,6 +208,9 @@ export default function Dashboard() {
                 </span>
               ))}
             </div>
+
+            {/* Sample datasets */}
+            <SampleDatasets onSuccess={handleUploadSuccess} />
           </div>
 
         ) : (
