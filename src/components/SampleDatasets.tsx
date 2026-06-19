@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import { ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface Props {
@@ -23,26 +24,55 @@ const SAMPLES = [
 ];
 
 export default function SampleDatasets({ onSuccess }: Props) {
-  const [expanded, setExpanded]         = useState(false);
-  const [loadingKey, setLoadingKey]     = useState<string | null>(null);
-  const [logs, setLogs]                 = useState<LogLine[]>([]);
-  const [error, setError]               = useState<string | null>(null);
-  const logIdRef                        = useRef(0);
-  const esRef                           = useRef<EventSource | null>(null);
+  const [expanded, setExpanded]     = useState(false);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const [logs, setLogs]             = useState<LogLine[]>([]);
+  const [error, setError]           = useState<string | null>(null);
+  const logIdRef                    = useRef(0);
+  const esRef                       = useRef<EventSource | null>(null);
+
+  // Clerk token — same pattern as your other authenticated calls
+  const { getToken } = useAuth();
 
   const addLog = (icon: string, message: string, detail = "", status: LogLine["status"] = "done") => {
     const id = ++logIdRef.current;
     setLogs(prev => [...prev, { id, icon, message, detail, status }]);
   };
 
-  const handleLoad = (key: string) => {
+  const handleLoad = async (key: string) => {
     if (loadingKey) return;
     setLoadingKey(key);
     setLogs([]);
     setError(null);
 
     const baseUrl = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
-    const es = new EventSource(`${baseUrl}/datasets/sample/${key}`);
+
+    // ── Phase 1: authenticated REST call to get a job_id ──────────────────
+    // EventSource can't send headers, so we use fetch() here with the Bearer
+    // token, then hand off to EventSource using the returned job_id.
+    let job_id: string;
+    try {
+      const token = await getToken();
+      const res = await fetch(`${baseUrl}/datasets/sample/${key}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.detail || `Request failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      job_id = data.job_id;
+    } catch (err: any) {
+      setError(err?.message || "Failed to start loading. Please try again.");
+      setLoadingKey(null);
+      return;
+    }
+
+    // ── Phase 2: open EventSource on the unauthenticated stream route ─────
+    // The backend retrieves user_id from the job store created in Phase 1.
+    const es = new EventSource(`${baseUrl}/datasets/sample/stream/${job_id}`);
     esRef.current = es;
 
     es.onmessage = (event) => {
@@ -211,7 +241,6 @@ export default function SampleDatasets({ onSuccess }: Props) {
                 padding: "14px 16px",
                 marginTop: 12,
               }}>
-                {/* Header — shows which dataset is loading */}
                 <div style={{
                   display: "flex", alignItems: "center", gap: 8,
                   marginBottom: 10,
@@ -227,7 +256,6 @@ export default function SampleDatasets({ onSuccess }: Props) {
                   </p>
                 </div>
 
-                {/* Log lines */}
                 {logs.map((line) => (
                   <div
                     key={line.id}
@@ -267,7 +295,6 @@ export default function SampleDatasets({ onSuccess }: Props) {
                   </div>
                 ))}
 
-                {/* Cancel */}
                 <button
                   onClick={handleCancel}
                   style={{
@@ -317,7 +344,6 @@ export default function SampleDatasets({ onSuccess }: Props) {
               ))}
             </div>
 
-            {/* Error */}
             {error && (
               <p style={{
                 fontSize: 12, color: "#f87171",

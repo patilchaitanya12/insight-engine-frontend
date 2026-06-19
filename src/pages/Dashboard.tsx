@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { RotateCcw, Sparkles, Lightbulb, BarChart2 } from "lucide-react";
+import { RotateCcw, Sparkles, Lightbulb, BarChart2, LogOut } from "lucide-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../context/ThemeContext";
 
 import UploadPanel from "../components/UploadPanel";
@@ -26,7 +27,10 @@ export default function Dashboard() {
   const [history, setHistory] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [query, setQuery] = useState<string>("");
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { isDark, toggle } = useTheme();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   const handleUploadSuccess = (id: string, suggested: string[]) => {
     setDatasetId(id);
@@ -141,6 +145,102 @@ export default function Dashboard() {
               }} />
             </div>
           </button>
+
+          {/* User avatar + dropdown */}
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setShowUserMenu(prev => !prev)}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 30, height: 30, borderRadius: "50%",
+                background: "var(--accent)",
+                border: "none", cursor: "pointer",
+                overflow: "hidden", flexShrink: 0,
+                padding: 0,
+              }}
+            >
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={user.fullName || "User"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span style={{ fontSize: 12, fontWeight: 700, color: "white" }}>
+                  {(user?.firstName?.[0] || user?.emailAddresses?.[0]?.emailAddress?.[0] || "U").toUpperCase()}
+                </span>
+              )}
+            </button>
+
+            {showUserMenu && (
+              <>
+                {/* Click-away overlay */}
+                <div
+                  onClick={() => setShowUserMenu(false)}
+                  style={{
+                    position: "fixed", inset: 0, zIndex: 60,
+                  }}
+                />
+                <div style={{
+                  position: "absolute", top: "calc(100% + 8px)", right: 0,
+                  zIndex: 61, minWidth: 180,
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                  padding: 6,
+                }}>
+                  {/* User info */}
+                  <div style={{
+                    padding: "8px 10px",
+                    borderBottom: "1px solid var(--border-subtle)",
+                    marginBottom: 4,
+                  }}>
+                    <p style={{
+                      fontSize: 12, fontWeight: 600,
+                      color: "var(--text-primary)",
+                      margin: 0, whiteSpace: "nowrap",
+                      overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {user?.fullName || "User"}
+                    </p>
+                    <p style={{
+                      fontSize: 11, color: "var(--text-muted)",
+                      margin: 0, whiteSpace: "nowrap",
+                      overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {user?.emailAddresses?.[0]?.emailAddress}
+                    </p>
+                  </div>
+
+                  {/* Sign out */}
+                  <button
+                    onClick={() => signOut()}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      width: "100%", fontSize: 12, fontWeight: 500,
+                      color: "var(--text-secondary)",
+                      background: "transparent",
+                      border: "none", borderRadius: 6,
+                      padding: "8px 10px", cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).style.background = "var(--bg-elevated)";
+                      (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                      (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                    }}
+                  >
+                    <LogOut size={13} />
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -285,8 +385,16 @@ export default function Dashboard() {
                     <ChartRenderer table={result.table} chart={result.chart} />
                   </div>
 
-                  {/* Insight */}
-                  <InsightCard insights={result.insights} />
+                  {/* Insight — key forces React to remount this component on every
+                      new query, so feedback state (submitted/rating) resets instead
+                      of carrying over from the previous question's result */}
+                  <InsightCard
+                    key={result.query_id ?? query}
+                    insights={result.insights}
+                    queryId={result.query_id}
+                    datasetId={datasetId}
+                    question={query}
+                  />
 
                   {/* Query history — inline on mobile instead of sticky sidebar */}
                   {history.length > 0 && (

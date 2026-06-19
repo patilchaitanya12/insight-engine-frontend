@@ -11,6 +11,7 @@ export interface ChartConfig {
 }
 
 export interface QueryResponse {
+  query_id: string | null;
   table: TableData;
   chart: ChartConfig;
   insights: string;
