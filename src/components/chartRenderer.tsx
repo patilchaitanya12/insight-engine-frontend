@@ -10,10 +10,14 @@ import {
   Brush,
 } from "recharts";
 import type { ChartConfig, TableData } from "../types/query";
+import { FeedbackBar } from "./FeedbackBar";
 
 interface Props {
   table: TableData;
   chart: ChartConfig;
+  queryId: string | null;
+  datasetId: string;
+  question: string;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -247,7 +251,7 @@ function useZoom(total: number) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function ChartRenderer({ table, chart }: Props) {
+export default function ChartRenderer({ table, chart, queryId, datasetId, question }: Props) {
   const { chart_type, x_column, y_column, group_by } = chart;
   const fullRows = (table.data ?? []) as Record<string, unknown>[];
   if (!fullRows.length) return null;
@@ -565,6 +569,21 @@ export default function ChartRenderer({ table, chart }: Props) {
           · drag handles to pan · tap ↺ Reset to restore
         </p>
       )}
+
+      {/* Chart feedback */}
+      <div style={{
+        marginTop: 12,
+        paddingTop: 10,
+        borderTop: "1px solid var(--border-subtle)",
+      }}>
+        <FeedbackBar
+          queryId={queryId}
+          datasetId={datasetId}
+          question={question}
+          target="chart"
+          label="Was this chart helpful?"
+        />
+      </div>
     </div>
   );
 }

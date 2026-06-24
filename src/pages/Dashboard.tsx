@@ -382,7 +382,7 @@ export default function Dashboard() {
                     border: "1px solid var(--border-subtle)",
                     borderRadius: 12, overflow: "hidden",
                   }}>
-                    <ChartRenderer table={result.table} chart={result.chart} />
+                    <ChartRenderer table={result.table} chart={result.chart} queryId={result.query_id} datasetId={datasetId} question={query} />
                   </div>
 
                   {/* Insight — key forces React to remount this component on every
