@@ -1,9 +1,6 @@
 import { useState } from "react";
+import posthog from "posthog-js";
 import api from "../services/api";
-
-// Extend this import to match however you import posthog in your project
-// e.g. import posthog from "posthog-js";
-declare const posthog: { capture: (event: string, props?: Record<string, unknown>) => void } | undefined;
 
 export type FeedbackTarget = "insight" | "chart";
 
@@ -35,20 +32,13 @@ export function useFeedback({ queryId, datasetId, question, target }: UseFeedbac
       });
       setSubmitted(true);
 
-      // PostHog tracking
-      try {
-        if (typeof posthog !== "undefined") {
-          posthog.capture("feedback_submitted", {
-            target,           // "insight" or "chart"
-            rating: selected, // "up" or "down"
-            has_comment: !!commentText,
-            dataset_id: datasetId,
-            query_id: queryId,
-          });
-        }
-      } catch {
-        // PostHog errors should never break the feedback flow
-      }
+      posthog.capture("feedback_submitted", {
+        target,
+        rating: selected,
+        has_comment: !!commentText,
+        dataset_id: datasetId,
+        query_id: queryId,
+      });
     } catch (err) {
       console.error("Failed to submit feedback", err);
     } finally {

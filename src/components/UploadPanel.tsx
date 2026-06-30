@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Upload, FileSpreadsheet, X, CheckCircle2, AlertCircle } from "lucide-react";
+import posthog from "posthog-js";
 import api from "../services/api";
 
 interface Props {
@@ -97,6 +98,11 @@ export default function UploadPanel({ onUploadSuccess }: Props) {
           addLog("✓", "All done! Opening your dashboard...", "", "done");
           es.close();
           esRef.current = null;
+          posthog.capture("dataset_uploaded", {
+            dataset_id: data.dataset_id,
+            file_name: file.name,
+            file_size_kb: Math.round(file.size / 1024),
+          });
           setTimeout(() => {
             onUploadSuccess(data.dataset_id, data.suggested_questions || []);
           }, 600);

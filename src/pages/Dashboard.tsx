@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RotateCcw, Sparkles, Lightbulb, BarChart2, LogOut } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { usePostHog } from "posthog-js/react";
 import { useTheme } from "../context/ThemeContext";
 
 import UploadPanel from "../components/UploadPanel";
@@ -29,8 +30,20 @@ export default function Dashboard() {
   const [query, setQuery] = useState<string>("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { isDark, toggle } = useTheme();
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const { signOut } = useClerk();
+  const posthog = usePostHog();
+
+  // Identify the user with PostHog as soon as Clerk confirms sign-in,
+  // attaching email + name so events in the dashboard are tied to a real person.
+  useEffect(() => {
+    if (isSignedIn && user) {
+      posthog?.identify(user.id, {
+        email: user.emailAddresses?.[0]?.emailAddress,
+        name: user.fullName,
+      });
+    }
+  }, [isSignedIn, user, posthog]);
 
   const handleUploadSuccess = (id: string, suggested: string[]) => {
     setDatasetId(id);

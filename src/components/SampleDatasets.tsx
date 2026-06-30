@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from "lucide-react";
+import posthog from "posthog-js";
 
 interface Props {
   onSuccess: (datasetId: string, suggestions: string[]) => void;
@@ -94,6 +95,10 @@ export default function SampleDatasets({ onSuccess }: Props) {
           addLog("✓", "All done! Opening your dashboard...", "", "done");
           es.close();
           esRef.current = null;
+          posthog.capture("sample_dataset_loaded", {
+            dataset_id: data.dataset_id,
+            sample_key: key,
+          });
           setTimeout(() => {
             onSuccess(data.dataset_id, data.suggested_questions || []);
             setLoadingKey(null);
