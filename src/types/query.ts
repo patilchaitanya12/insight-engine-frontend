@@ -8,6 +8,9 @@ export interface ChartConfig {
   x_column: string;
   y_column: string;
   group_by?: string;
+  /** The aggregation applied on the backend (sum | avg | count | max | min).
+   *  Used by MetricCards to avoid re-aggregating already-aggregated rows. */
+  aggregation?: string;
 }
 
 export interface QueryResponse {

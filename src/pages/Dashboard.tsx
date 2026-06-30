@@ -387,6 +387,7 @@ export default function Dashboard() {
                     rows={result.table.data}
                     xColumn={result.chart.x_column}
                     yColumn={result.chart.y_column}
+                    aggregation={result.chart.aggregation}
                   />
 
                   {/* Chart */}

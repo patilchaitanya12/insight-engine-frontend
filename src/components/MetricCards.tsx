@@ -2,6 +2,10 @@ interface Props {
   rows: any[];
   xColumn: string;
   yColumn: string;
+  /** The aggregation already applied on the backend (sum | avg/mean | count | max | min).
+   *  Needed so MetricCards doesn't blindly re-aggregate already-aggregated rows —
+   *  e.g. summing 6 already-averaged department rows produces a meaningless number. */
+  aggregation?: string;
 }
 
 const ACCENT_COLORS = ["#3b82f6", "#a855f7", "#10b981"];
@@ -16,27 +20,47 @@ const formatDisplayValue = (val: string): string => {
   return val;
 };
 
-export default function MetricCards({ rows, xColumn, yColumn }: Props) {
+const isAlreadyAveraged = (aggregation?: string) =>
+  aggregation === "avg" || aggregation === "average" || aggregation === "mean";
+
+export default function MetricCards({ rows, xColumn, yColumn, aggregation }: Props) {
   if (!rows.length) return null;
 
-  const total  = rows.reduce((sum: number, r: any) => sum + Number(r[yColumn] || 0), 0);
+  const values = rows.map((r: any) => Number(r[yColumn] || 0));
+  const total  = values.reduce((sum: number, v: number) => sum + v, 0);
   const maxRow = rows.reduce((a: any, b: any) => Number(a[yColumn]) > Number(b[yColumn]) ? a : b);
-  const avg    = Math.round(total / rows.length);
+
+  // If the backend already returned an averaged metric per row (e.g.
+  // groupby(...).mean()), re-summing those rows and dividing again produces
+  // a meaningless number. In that case, the "Total" card doesn't make sense
+  // either — show the average across the already-averaged rows instead,
+  // and label both cards accordingly so nothing implies raw totals.
+  const alreadyAveraged = isAlreadyAveraged(aggregation);
+
+  const primaryValue = alreadyAveraged
+    ? Math.round((total / rows.length) * 100) / 100
+    : total;
+
+  const primaryLabel = alreadyAveraged
+    ? `Avg ${yColumn} (across ${rows.length})`
+    : `Total ${yColumn}`;
+
+  const secondaryValue = alreadyAveraged
+    ? Math.max(...values)
+    : Math.round(total / rows.length);
+
+  const secondaryLabel = alreadyAveraged
+    ? `Max ${yColumn}`
+    : `Avg ${yColumn}`;
 
   const stats = [
-    { label: `Total ${yColumn}`,  value: total.toLocaleString(),    color: ACCENT_COLORS[0] },
-    { label: `Top ${xColumn}`,    value: formatDisplayValue(String(maxRow[xColumn])),   color: ACCENT_COLORS[1] },
-    { label: `Avg ${yColumn}`,    value: avg.toLocaleString(),      color: ACCENT_COLORS[2] },
+    { label: primaryLabel,        value: primaryValue.toLocaleString(),                    color: ACCENT_COLORS[0] },
+    { label: `Top ${xColumn}`,    value: formatDisplayValue(String(maxRow[xColumn])),       color: ACCENT_COLORS[1] },
+    { label: secondaryLabel,      value: secondaryValue.toLocaleString(),                   color: ACCENT_COLORS[2] },
   ];
 
   return (
     <>
-      {/* Responsive grid:
-          - Mobile (<480px)  → 1 column, cards are full width rows
-          - Tablet (480–768) → 3 columns, compact
-          - Desktop (>768)   → 3 columns, comfortable
-          We use a CSS custom property trick via inline style + a <style> tag
-          because this is a pure inline-style codebase with no Tailwind/CSS modules. */}
       <style>{`
         .metric-grid {
           display: grid;
@@ -98,7 +122,7 @@ export default function MetricCards({ rows, xColumn, yColumn }: Props) {
               padding: "18px 18px 14px",
               transition: "border-color 0.15s, transform 0.15s",
               cursor: "default",
-              flexDirection: "column", // overridden on mobile via CSS
+              flexDirection: "column",
             }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLElement).style.borderColor = "var(--border-muted)";
@@ -109,7 +133,6 @@ export default function MetricCards({ rows, xColumn, yColumn }: Props) {
               (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
             }}
           >
-            {/* Left side (label + value) */}
             <div className="metric-card-left">
               <p
                 className="metric-label"
@@ -138,7 +161,6 @@ export default function MetricCards({ rows, xColumn, yColumn }: Props) {
               </p>
             </div>
 
-            {/* Colored bar (hidden on mobile, replaced by dot) */}
             <div
               className="metric-bar"
               style={{
@@ -148,11 +170,10 @@ export default function MetricCards({ rows, xColumn, yColumn }: Props) {
               }}
             />
 
-            {/* Color dot — only visible on mobile via CSS */}
             <div
               className="metric-color-dot"
               style={{
-                display: "none", // shown via CSS on mobile
+                display: "none",
                 width: 10, height: 10, borderRadius: "50%",
                 background: item.color,
                 boxShadow: `0 0 6px ${item.color}80`,
